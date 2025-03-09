@@ -8,17 +8,20 @@
 | Document Type | Technical Design Specification |
 | Status | Draft |
 | Last Updated | 2024 |
+| Platform | Mobile-First (iOS/Android) with Web Support |
 
 ## 1. Overview
 
-This document describes the design for an application that enables users to upload, manage, and categorize their documents with tags. The backend is built on AWS, taking advantage of managed services to ensure scalability, security, and high availability.
+This document describes the design for a mobile-first application that enables users to upload, manage, and categorize their documents with tags. The system provides native mobile apps for iOS and Android, with a complementary web interface. The backend is built on AWS, taking advantage of managed services to ensure scalability, security, and high availability.
 
 ### Key Objectives
 
+- **Mobile-First Experience**: Deliver intuitive document management through native mobile apps
 - **File Management**: Enable upload, download, deletion, and organization of documents
 - **Tagging & Categorization**: Allow users to assign multiple tags to files for flexible categorization and searchability
 - **Scalability**: Utilize AWS managed services to handle varying loads and ensure high availability
 - **Security**: Ensure data protection both at rest and in transit, with strict access controls
+- **Offline Support**: Enable basic functionality when offline with data synchronization
 
 ## 2. Functional Requirements
 
@@ -59,13 +62,23 @@ This document describes the design for an application that enables users to uplo
 
 The system architecture leverages several AWS services as follows:
 
-#### Frontend
-- Web or mobile client built using a modern framework (e.g., React, Angular, or Vue.js)
-- Interacts with backend APIs
+#### Mobile Frontend
+- Native mobile applications for iOS (Swift/SwiftUI) and Android (Kotlin/Jetpack Compose)
+- Offline data persistence using local storage
+- Push notification support for document updates and sharing
+- Camera integration for document scanning and upload
+- Biometric authentication support
+
+#### Web Frontend (Secondary)
+- Progressive Web App (PWA) built using React for cross-browser compatibility
+- Responsive design for tablet and desktop access
+- Feature parity with mobile apps where applicable
 
 #### Backend API
 - RESTful API hosted on AWS API Gateway
 - Implemented using AWS Lambda (serverless functions) or containerized microservices via ECS/Fargate
+- Mobile-optimized endpoints with data compression and pagination
+- WebSocket support for real-time updates
 
 #### File Storage
 - Amazon S3 serves as the primary storage for uploaded documents
@@ -122,10 +135,19 @@ The system architecture leverages several AWS services as follows:
 #### Endpoints
 | Endpoint | Description |
 |----------|-------------|
-| `/upload` | Handles document uploads. Generates unique ID and stores in S3; metadata and tags saved in DynamoDB/RDS |
-| `/documents/{id}` | Retrieves document details and download links |
+| `/upload` | Handles document uploads with mobile-optimized chunked upload support |
+| `/documents/{id}` | Retrieves document details and download links with compression options |
 | `/documents/{id}/tags` | Endpoints to add, remove, or list tags |
 | `/search` | Query documents based on tags, names, or other metadata |
+| `/sync` | Handles mobile device data synchronization |
+| `/notifications` | Manages push notification preferences and delivery |
+
+#### Mobile-Specific Features
+- Chunked upload support for large files
+- Image/document compression before upload
+- Bandwidth-aware download options
+- Background sync capabilities
+- Push notification integration
 
 #### Implementation
 - AWS Lambda functions (or containers) for each endpoint
@@ -208,15 +230,30 @@ The system architecture leverages several AWS services as follows:
 
 ## 8. Future Enhancements
 
+### Mobile Experience
+- Document scanning with OCR
+- Offline document editing
+- Advanced mobile camera features (document edge detection, auto-enhancement)
+- Integration with mobile device file providers
+- Share extension for direct upload from other apps
+- Widget support for quick access
+- AR features for document organization and retrieval
+
+### Cross-Platform Integration
+- Seamless data synchronization between mobile and web platforms
+- Shared authentication state
+- Consistent user experience across devices
+
 ### Advanced Search Capabilities
-- Incorporate full-text search, fuzzy matching, and relevance scoring
+- Voice search integration
+- Image-based search
+- Fuzzy matching and relevance scoring
 
 ### Machine Learning
-- Integrate AWS Rekognition or Comprehend for document analysis
-- Enhance metadata extraction through OCR and sentiment analysis
-
-### Mobile Application
-- Develop native mobile apps for enhanced document management on-the-go
+- Mobile-based document analysis for faster processing
+- On-device ML for document classification
+- Integrate AWS Rekognition or Comprehend for advanced document analysis
+- Enhanced metadata extraction through OCR and sentiment analysis
 
 ## 9. Conclusion
 
